@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- 이 페이지는 자기 폴더의 파일만 불러오고, 다른 사이트로는 아무것도 보낼 수 없게 막아 둡니다 (connect-src 'self'). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: mediastream:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'none'">
+<title>무궁화 꽃이 피었습니다</title>
+<meta name="description" content="카메라가 술래가 되는 몸놀이 게임">
+<meta name="theme-color" content="#1f4d3a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="무궁화 놀이">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<video id="cam" playsinline muted></video>
+<canvas id="stage"></canvas>
+
+<div class="tools" id="tools" hidden>
+  <button id="btnPause" type="button">일시정지</button>
+  <button id="btnHome" type="button">처음으로</button>
+  <button id="btnFull" type="button">전체화면</button>
+</div>
+
+<!-- 처음 화면 -->
+<section class="overlay" id="menu">
+  <div class="card">
+    <header class="head">
+      <img src="icons/icon-192.png" alt="" width="72" height="72">
+      <div>
+        <h1>무궁화 꽃이 피었습니다</h1>
+        <p class="lead">카메라가 술래예요. 노래하는 동안 제자리에서 달리고 팔을 흔들면 앞으로 가요.
+          <b>"얼음!"</b> 하면 꼼짝 마! 움직이면 걸려서 뒤로 가요.</p>
+      </div>
+    </header>
+
+    <div class="opts">
+      <div class="opt">
+        <span class="label">몇 명이 할까요?</span>
+        <div class="chips" data-group="players">
+          <button class="chip" type="button" data-value="1">혼자</button>
+          <button class="chip" type="button" data-value="2">둘이서 <small>왼쪽 1P · 오른쪽 2P</small></button>
+        </div>
+      </div>
+      <div class="opt">
+        <span class="label">술래 눈치</span>
+        <div class="chips" data-group="level">
+          <button class="chip" type="button" data-value="easy">너그러움</button>
+          <button class="chip" type="button" data-value="normal">보통</button>
+          <button class="chip" type="button" data-value="hawk">매의 눈</button>
+        </div>
+      </div>
+      <div class="opt">
+        <span class="label">술래 목소리</span>
+        <div class="chips" data-group="voice">
+          <button class="chip" type="button" data-value="on">켜기</button>
+          <button class="chip" type="button" data-value="off">끄기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <p class="status" role="status"><span class="dot wait" id="camDot"></span><span id="camText">카메라 준비 중…</span></p>
+      <div class="actions">
+        <button class="btn ghost" id="btnInstall" type="button" hidden>홈 화면에 설치</button>
+        <button class="btn" id="btnStart" type="button">시작하기</button>
+      </div>
+    </div>
+    <p class="iosHint" id="iosHint" hidden>아이패드·아이폰에서는 사파리의 <b>공유</b> 버튼 → <b>홈 화면에 추가</b>를 누르면 앱처럼 설치돼요.</p>
+
+    <details class="help">
+      <summary>선생님 안내</summary>
+      <ul>
+        <li>카메라에서 2~3m 떨어져서 머리부터 발까지 보이게 서요. 둘이서 할 때는 화면 가운데 선을 기준으로 왼쪽이 1P, 오른쪽이 2P예요.</li>
+        <li>몸 인식은 이 기기 안에서만 해요. 카메라 영상은 저장하지 않고, 어디에도 보내지 않아요.</li>
+        <li>카메라가 없을 때는 키보드 <kbd>A</kbd>(1P)·<kbd>L</kbd>(2P)를 누르고 있거나 화면 왼쪽·오른쪽을 누르고 있으면 움직여요.</li>
+        <li>단축키: <kbd>Enter</kbd> 시작 · <kbd>Space</kbd> 일시정지 · <kbd>F</kbd> 전체화면</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<!-- 결과 화면 -->
+<section class="overlay" id="result" hidden>
+  <div class="card result">
+    <p class="kicker" id="resKicker">도착!</p>
+    <h2 id="resTitle">이겼어요!</h2>
+    <div class="stars" id="resStars"></div>
+    <div class="resRows" id="resRows"></div>
+    <div class="actions center">
+      <button class="btn" id="btnAgain" type="button">한 번 더!</button>
+      <button class="btn ghost" id="btnMenu" type="button">설정 바꾸기</button>
+    </div>
+  </div>
+</section>
+</body>
+</html>
