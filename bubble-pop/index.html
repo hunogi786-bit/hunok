@@ -65,9 +65,9 @@ h1 span{color:var(--coral)}
 .ico{height:46px;position:relative}
 .ico i{position:absolute;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:var(--display);color:#fff;font-size:15px;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 24px}
-.opt{display:grid;gap:8px}
+.opt{display:grid;gap:8px;align-content:start}
 .opt>span{font-family:var(--display);font-size:19px}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;align-content:flex-start}
 .chip{font-family:var(--display);font-size:18px;border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 16px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 .foot{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -143,9 +143,11 @@ h1 span{color:var(--coral)}
         </div></div>
       <div class="opt"><span>방울 속도</span>
         <div class="chips" data-group="level">
-          <button class="chip" type="button" data-value="easy">천천히</button>
-          <button class="chip" type="button" data-value="normal">보통</button>
-          <button class="chip" type="button" data-value="hard">빠르게</button>
+          <button class="chip" type="button" data-value="1">1 아주 천천히</button>
+          <button class="chip" type="button" data-value="2">2 천천히</button>
+          <button class="chip" type="button" data-value="3">3 보통</button>
+          <button class="chip" type="button" data-value="4">4 빠르게</button>
+          <button class="chip" type="button" data-value="5">5 아주 빠르게</button>
         </div></div>
       <div class="opt"><span>발로도 터뜨리기</span>
         <div class="chips" data-group="feet">
@@ -191,7 +193,7 @@ const canvas = $('#stage'), ctx = canvas.getContext('2d');
 const video = $('#cam');
 
 /* ---------- 설정 ---------- */
-const settings = { mode:'free', time:'60', level:'normal', feet:'on', sound:'on' };
+const settings = { mode:'free', time:'60', level:'3', feet:'on', sound:'on' };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('bubblepop') || '{}')); } catch(e) {}
 function saveSettings(){ try { localStorage.setItem('bubblepop', JSON.stringify(settings)); } catch(e) {} }
 
@@ -208,11 +210,17 @@ document.querySelectorAll('.chips').forEach(g => g.addEventListener('click', e =
 }));
 syncMenu();
 
+/* 방울 속도 5단계
+   r: 방울 크기(화면 짧은 쪽 대비) · speed: 1초에 오르는 거리(화면 높이 대비)
+   every: 새 방울이 나오는 간격(초) · max: 화면에 동시에 있는 최대 방울 수 · numCount: 숫자 순서 놀이의 한 판 숫자 개수 */
 const LEVELS = {
-  easy:   { r:0.085, speed:0.075, every:1.10, max:7,  numCount:5 },
-  normal: { r:0.068, speed:0.105, every:0.80, max:10, numCount:7 },
-  hard:   { r:0.056, speed:0.145, every:0.55, max:13, numCount:9 },
+  '1': { r:0.090, speed:0.060, every:1.30, max:6,  numCount:4  },  // 아주 천천히: 바닥→천장 약 17초
+  '2': { r:0.080, speed:0.080, every:1.05, max:8,  numCount:5  },  // 천천히: 약 12초
+  '3': { r:0.070, speed:0.100, every:0.85, max:10, numCount:6  },  // 보통: 약 10초
+  '4': { r:0.062, speed:0.130, every:0.65, max:12, numCount:8  },  // 빠르게: 약 8초
+  '5': { r:0.055, speed:0.165, every:0.50, max:14, numCount:10 },  // 아주 빠르게: 약 6초
 };
+if (!LEVELS[settings.level]) { settings.level = '3'; saveSettings(); syncMenu(); }
 const COLORS = [
   { name:'빨간', hex:'#ff4d55' },
   { name:'노란', hex:'#ffd02e' },
